@@ -10,7 +10,7 @@ import io
 import logging
 import yaml
 import argparse
-import esmr
+from esmr_data import esmr
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -161,7 +161,7 @@ def plot_data(plotmap):
 def main():
     parser = argparse.ArgumentParser(description="Process ESMR data")
     parser.add_argument(
-        "--url", type=str, required=True, help="URL to download the zipped CSV file"
+        "--url", type=str, required=False, default=None, help="URL to download the zipped CSV file"
     )
     parser.add_argument(
         "--config", type=str, required=True, help="Path to the YAML configuration file"
@@ -170,7 +170,13 @@ def main():
         "--extract_to",
         type=str,
         default=".",
-        help="Directory to extract the zipped file",
+        help="Directory to write output CSVs",
+    )
+    parser.add_argument(
+        "--csv-file",
+        type=str,
+        default=None,
+        help="Path to an existing ESMR CSV file; skips download and unzip entirely",
     )
     # add option to skip download and unzip step
     parser.add_argument(
@@ -191,7 +197,9 @@ def main():
     # Ensure the extract_to directory exists
     if not os.path.exists(args.extract_to):
         os.makedirs(args.extract_to)
-    if not args.skip_download:
+    if args.csv_file:
+        esmr_file = args.csv_file
+    elif not args.skip_download:
         esmr_file = download_and_unzip(args.url, args.extract_to)
     else:
         # find local file starging with esmr ending with .csv

@@ -230,7 +230,13 @@ def read_data_csv(csv_file):
     if os.path.exists(pkl_file):
         df = pd.read_pickle(pkl_file)
     else:
-        df = pd.read_csv(csv_file, dtype=categorical_types())
+        # Read categorical columns as str to avoid dtype mismatch when pandas
+        # internally unions chunks from a large CSV (e.g. mixed int/str categories).
+        str_dtypes = {col: str for col in categorical_types()}
+        df = pd.read_csv(csv_file, dtype=str_dtypes)
+        for col in categorical_types():
+            if col in df.columns:
+                df[col] = df[col].astype("category")
         # TEMP FIX:
         # df.loc[13330034, "sampling_date"] = "2016-11-30"
         df["sampling_datetime"] = pd.to_datetime(

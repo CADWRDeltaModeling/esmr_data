@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "esmr_data"
+dynamic = ["version"]
+description = "Electronic Self Monitoring Data"
+license = { text = "MIT" }
+authors = [{ name = "Nicky Sandhu", email = "psandhu@water.ca.gov" }]
+urls = { Homepage = "https://github.com/dwr-psandhu/esmr_data" }
+dependencies = [
+    "numpy",
+    "pandas",
+    "requests",
+    "beautifulsoup4",
+    "pyyaml",
+    "click",
+    "panel",
+    "param",
+    "geoviews",
+    "holoviews",
+    "hvplot",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+
+[project.scripts]
+esmr_data = "esmr_data.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["esmr_data*"]
+
+[tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe"]
+addopts = [
+    "--junitxml=junit.xml",
+    "--ignore=run_test.py",
+    "--tb=native",
+    "--strict-markers",
+    "--durations=20",
+]
+markers = [
+    "serial: execute test serially (to avoid race conditions)",
+]

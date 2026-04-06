@@ -1,48 +1,27 @@
-name: pydelmod
+name: esmr
 channels:
-  - pyviz
-  - defaults
-  - cadwr-dms
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.9
+  - python=3.13
   - pip
-  # first our packages
-  - pyhecdss
-  - vtools3
-  - pydsm
-  - pydelmod
-  - schimpy
-  # then basics
-  - click
-  - aiohttp
-  - numba
+  # core data
+  - numpy
   - pandas
-  - dask
-  - xarray
-  - netcdf4
-  - scipy
-  # geo stuff
-  - gdal
-  - shapely
-  - geopandas
-  # for different file formats
-  - fastparquet
-  - python-snappy
-  - pyarrow
-  - pytables
-  - openpyxl
-  # then plot stuff
-  - matplotlib
+  # download / parse pipeline
+  - requests
+  - beautifulsoup4
+  - pyyaml
+  # CLI
+  - click
+  # dashboard
+  - panel
+  - param
   - geoviews
   - holoviews
   - hvplot
-  - networkx
-  # browsers
-  - autopep8
-  # browsers
-  - selenium
-  - firefox
-  - geckodriver
-  # pdf parsing
-  - tabula-py
+  # dev tools
+  - pytest
+  - flake8
+  - pip:
+    - -e .

@@ -38,7 +38,7 @@ City_of_Manteca_WW_Quality_Control_Facility:
   Electrical_Conductivity_@_25_Deg._C:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
-Stockton_Regional_WW_Control_Facility:
+Wastewater_Recovery_Center:
   Flow:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna

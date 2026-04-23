@@ -230,9 +230,11 @@ def read_data_csv(csv_file):
     if os.path.exists(pkl_file):
         df = pd.read_pickle(pkl_file)
     else:
-        # Read categorical columns as str to avoid dtype mismatch when pandas
-        # internally unions chunks from a large CSV (e.g. mixed int/str categories).
-        str_dtypes = {col: str for col in categorical_types()}
+        # Use "object" dtype (numpy) explicitly to avoid PyArrow string backend
+        # on newer pandas, which can fail with ArrowMemoryError on large files.
+        # Also include "comments" to suppress DtypeWarning for that mixed-type column.
+        str_dtypes = {col: "object" for col in categorical_types()}
+        str_dtypes["comments"] = "object"
         df = pd.read_csv(csv_file, dtype=str_dtypes)
         for col in categorical_types():
             if col in df.columns:

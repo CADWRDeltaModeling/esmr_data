@@ -1,4 +1,5 @@
 EchoWater_Resource_Recovery_Facility:
+  station_id: spe
   Flow:
     location_place_type: Effluent Monitoring
     analytical_method: notna
@@ -9,6 +10,7 @@ EchoWater_Resource_Recovery_Facility:
     location_place_type: Effluent Monitoring
     analytical_method_code: E120.1
 Mountain_House_WWTP:
+  station_id: mhwwtp
   Flow:
     location_place_type: Effluent Monitoring
     analytical_method_code: DU
@@ -19,6 +21,7 @@ Mountain_House_WWTP:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
 Tracy_WWTP:
+  station_id: tracywwt
   Flow:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
@@ -29,6 +32,7 @@ Tracy_WWTP:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
 City_of_Manteca_WW_Quality_Control_Facility:
+  station_id: wqcf
   Flow:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
@@ -39,6 +43,7 @@ City_of_Manteca_WW_Quality_Control_Facility:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
 Wastewater_Recovery_Center:
+  station_id: srwcf  # Stockton
   Flow:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
@@ -50,6 +55,7 @@ Wastewater_Recovery_Center:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
 Brentwood_WWTP:
+  station_id: bwwtp
   Flow:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
@@ -60,6 +66,7 @@ Brentwood_WWTP:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna
 White_Slough_Water_Pollution_Control_Facility:
+  station_id: wpcf
   Flow:
     location_place_type: Effluent Monitoring
     analytical_method_code: notna

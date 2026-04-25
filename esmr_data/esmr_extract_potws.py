@@ -84,6 +84,8 @@ def process_csv(esmr_file, filter_conditions, extract_to="."):
     for facility_name in facility_names:
         logger.info(f"Processing facility: {facility_name}")
         for parameter, conditions in filter_conditions[facility_name].items():
+            if parameter == "station_id":
+                continue
             location_place_type = conditions.pop("location_place_type")
             dff = df[
                 (df.facility_name == facility_name.replace("_", " "))
@@ -97,6 +99,9 @@ def process_csv(esmr_file, filter_conditions, extract_to="."):
     plotmap = {}
     for facility_name, parameters in filter_conditions.items():
         for parameter, conditions in parameters.items():
+            if parameter == "station_id":
+                station_id = conditions
+                continue
             key = f"{facility_name}_{parameter}"
             dfk = dfmap[key]
             filter_condition = pd.Series([True] * len(dfk), index=dfk.index)
@@ -109,7 +114,16 @@ def process_csv(esmr_file, filter_conditions, extract_to="."):
             dfr = extract_result(dfk, filter_condition, key)
             metadata = get_columns_unique_vals(dfk)
             plotmap[key] = (dfr, metadata)
-            fname = os.path.join(extract_to, f"{key}.csv")
+            syear = str(dfr.index.min().year)
+            eyear = str(dfr.index.max().year)
+            if parameter == "Electrical_Conductivity_@_25_Deg._C":
+                parameter = "ec"
+            if parameter == "Flow":
+                parameter = "flow"
+            if parameter == "Temperature":
+                parameter = "temp"
+            output_file = f"esmr_{station_id}_{parameter}_{syear}_{eyear}.csv"
+            fname = os.path.join(extract_to, output_file)
             write_out_data(dfr, metadata, fname)
 
     return plotmap

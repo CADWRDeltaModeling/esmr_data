@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools-scm>=8"]
+requires = ["setuptools>=77", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "esmr_data"
 dynamic = ["version"]
 description = "Electronic Self Monitoring Data"
-license = { text = "MIT" }
+license = "MIT"
 authors = [{ name = "Nicky Sandhu", email = "psandhu@water.ca.gov" }]
 urls = { Homepage = "https://github.com/dwr-psandhu/esmr_data" }
 dependencies = [

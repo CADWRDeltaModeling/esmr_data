@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import zipfile
 import io
+import json
+import sys
 import logging
 import yaml
 import argparse
@@ -17,58 +19,63 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 
+def find_zip_url(soup):
+    """Return the direct URL of the 'Zipped CSV' resource on the dataset page, or None."""
+    # Primary: schema.org JSON-LD embedded in the page
+    for script in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(script.string or "")
+        except ValueError:
+            continue
+        distributions = data.get("distribution", []) if isinstance(data, dict) else []
+        for dist in distributions:
+            content_url = dist.get("contentUrl", "")
+            if "Zipped CSV" in dist.get("name", "") and content_url.lower().endswith(".zip"):
+                return content_url
+    # Fallback: the download button carries the resource name only in aria-label
+    link = soup.find("a", attrs={"aria-label": lambda v: v and "Zipped CSV" in v})
+    if link and link.get("href", "").lower().endswith(".zip"):
+        return link["href"]
+    return None
+
+
 def download_and_unzip(url, extract_to="."):
     # Ensure the extract_to directory exists
     if not os.path.exists(extract_to):
         os.makedirs(extract_to)
 
     response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, "html.parser")
-        link = soup.find(lambda tag: tag.name == "a" and "Zipped CSV" in tag.text)
-        parsed_url = urlparse(response.url)
-        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
-        if link:
-            csv_url = link["href"]
-            logger.info(f"Found Zipped CSV link: {base_url+csv_url}")
-
-            # Follow the link to the zipped CSV page
-            csv_response = requests.get(base_url + csv_url)
-            if csv_response.status_code == 200:
-                csv_soup = BeautifulSoup(csv_response.content, "html.parser")
-                url_text = csv_soup.find(
-                    lambda tag: tag.name == "a" and ".zip" in tag.text
-                ).text
-                if url_text:
-                    final_url = url_text
-                    fname = os.path.join(
-                        extract_to, urlparse(final_url).path.split("/")[-1]
-                    )
-
-                    # Download the zipped file
-                    with requests.get(final_url, stream=True, verify=True) as r:
-                        r.raise_for_status()
-                        with open(fname, "wb") as f:
-                            for chunk in r.iter_content(chunk_size=8192):
-                                f.write(chunk)
-                    logger.info(f"File downloaded successfully: {fname}")
-
-                    # Unzip the file
-                    with zipfile.ZipFile(fname, "r") as z:
-                        z.extractall(extract_to)
-                    logger.info("File downloaded and extracted successfully")
-                    return fname.replace(".zip", ".csv")
-                else:
-                    logger.info("URL for zip not found")
-            else:
-                logger.info(
-                    f"Failed to retrieve the CSV URL: {csv_response.status_code}"
-                )
-        else:
-            logger.info("Zipped CSV link not found")
-    else:
+    if response.status_code != 200:
         logger.info(f"Failed to retrieve the URL: {response.status_code}")
-    return None
+        return None
+
+    final_url = find_zip_url(BeautifulSoup(response.content, "html.parser"))
+    if not final_url:
+        logger.info("Zipped CSV link not found")
+        return None
+    logger.info(f"Found Zipped CSV link: {final_url}")
+
+    fname = os.path.join(extract_to, urlparse(final_url).path.split("/")[-1])
+
+    # Download the zipped file
+    with requests.get(final_url, stream=True, verify=True) as r:
+        r.raise_for_status()
+        with open(fname, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+    logger.info(f"File downloaded successfully: {fname}")
+
+    # Unzip the file
+    with zipfile.ZipFile(fname, "r") as z:
+        z.extractall(extract_to)
+        csv_names = [n for n in z.namelist() if n.lower().endswith(".csv")]
+    logger.info("File downloaded and extracted successfully")
+    if not csv_names:
+        logger.info("No CSV found in the downloaded zip")
+        return None
+    expected = os.path.basename(fname).replace(".zip", ".csv")
+    csv_name = expected if expected in csv_names else csv_names[0]
+    return os.path.join(extract_to, csv_name)
 
 
 def process_csv(esmr_file, filter_conditions, extract_to="."):
@@ -233,6 +240,7 @@ def main():
             plot_data(plotmap)
     else:
         logger.error("No ESMR file found")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
